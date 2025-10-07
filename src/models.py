@@ -19,8 +19,8 @@ class User(db.Model):
     posts: Mapped[list["Post"]] = relationship("Post", back_populates="user")
     comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="user")
 
-    following:Mapped[list["Followers"]] = relationship(back_populates="follower",foreign_keys="Followers.followed_id")
-    followers:Mapped[list["Followers"]] = relationship(back_populates="followed",foreign_keys="Followers.follower_id")
+    following:Mapped[list["Followers"]] = relationship(back_populates="follower",foreign_keys="Followers.follower_id")
+    followers:Mapped[list["Followers"]] = relationship(back_populates="followed",foreign_keys="Followers.followed_id")
 
     def serialize(self):
         return {
@@ -59,8 +59,8 @@ class Comment(db.Model):
     author_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     post_id: Mapped[int] = mapped_column(ForeignKey("post.id"))
 
-    user: Mapped["User"] = relationship("User", back_populates= "comments", uselist=False)
-    post: Mapped["Post"] = relationship("Post", back_populates= "comments", uselist=False)
+    user: Mapped["User"] = relationship("User", back_populates= "comments")
+    post: Mapped["Post"] = relationship("Post", back_populates= "comments")
 
     def serialize(self):
         return {
@@ -108,10 +108,14 @@ class Followers(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "user": {
-                "id": self.user.id,
-                "email": self.user.email
-            } if self.user else None,
+            "follower": {
+                "id": self.follower.id,
+                "user_name": self.follower.user_name
+            } if self.follower else None,
+            "followed": {
+                "id": self.followed.id,
+                "user_name": self.followed.user_name
+            } if self.followed else None
         }
 
     
